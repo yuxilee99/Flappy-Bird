@@ -1,10 +1,10 @@
 import pygame
 import math
-import tensorflow as tf
 from neuralnetwork import NeuralNetwork
 
+#bird class
 class Bird(object):
-    def __init__(self, x, y):
+    def __init__(self, x, y, network = None):
         self.birds = [pygame.image.load('images/birdUp.png'), pygame.image.load('images/bird.png'), pygame.image.load('images/birdDown.png')]  
         self.birdx = x//4
         self.birdy = y//2
@@ -13,14 +13,18 @@ class Bird(object):
         self.velocity = 0
         self.birdImage = 1
         self.birdRadius = 32
-        self.birdRadiusY = 26
+        self.birdRadiusY = 13
         self.width = x
         self.height = y
         self.pipeHeight = 321
         
         self.score = 0
         self.fitness = 0
-        self.network = NeuralNetwork(4, 4, 1)
+        
+        if network != None:
+            self.network = network
+        else:
+            self.network = NeuralNetwork(4, 4, 1)
 
     #apply gravity to bird    
     def update(self):

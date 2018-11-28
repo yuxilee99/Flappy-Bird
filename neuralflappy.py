@@ -5,22 +5,6 @@ import random
 import copy
 import sys
 from Bird import Bird
-# from genetic import genetic
-def calcFitness(birds):
-    #get total sum of birds scores
-    sum = 0
-    for bird in birds:
-        sum += bird.score
-        
-    #get fitness of birds
-    for bird in birds:
-        bird.fitness = bird.score/sum
-    
-def nextGeneration(bird, width, height):
-    calcFitness(bird)
-    # birds = []
-    # for i in range(100):
-    #     birds += [Bird(width, height)]
         
 class PygameGame(object):
     def init(self):

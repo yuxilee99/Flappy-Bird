@@ -1,32 +1,23 @@
 #used template provided from Pygame PPT, by Lukas Peraza
+#referenced David Shiffman, The Coding Train for logic
 
 import pygame
 import random
 import copy
 import sys
 from Bird import Bird
-# from genetic import genetic
-def calcFitness(birds):
-    #get total sum of birds scores
-    sum = 0
-    for bird in birds:
-        sum += bird.score
-        
-    #get fitness of birds
-    for bird in birds:
-        bird.fitness = bird.score/sum
-    
-def nextGeneration(bird, width, height):
-    calcFitness(bird)
-    # birds = []
-    # for i in range(100):
-    #     birds += [Bird(width, height)]
+from genetic import *
         
 class PygameGame(object):
-    def init(self):
+    def init(self, birds = None, generation = None):
         self.over = False
         self.gameover = pygame.image.load("images/gameover.png")
         self.score = 0
+        
+        if generation != None:
+            self.generation = generation
+        else:
+            self.generation = 0
         
         #load background for game
         self.display = pygame.display.set_mode((self.width,self.height))
@@ -38,17 +29,21 @@ class PygameGame(object):
         self.topPipe = pygame.image.load('images/topPipe.png')
         self.bottomPipe = pygame.image.load('images/bottomPipe.png')
         self.gap = 100
-        self.pipeHeight = 321
+        self.pipeHeight = 314
         self.pipeWidth = 52
         self.speed = -2
         self.time = 0
         
-        self.birds = []
-        for i in range(10):
-            self.birds += [Bird(self.width, self.height)]
-        self.allBirds = copy.copy(self.birds)
+        if birds != None:
+            self.birds = birds
+        else:
+            self.birds = []
+            for i in range(200):
+                self.birds += [Bird(self.width, self.height)]
+        self.allBirds = []
         
     def mousePressed(self, x, y):
+        print('y',y)
         pass
 
     def mouseReleased(self, x, y):
@@ -64,55 +59,52 @@ class PygameGame(object):
         pass
 
     def keyPressed(self, keyCode, modifier):
-        # if keyCode == pygame.K_SPACE:
-        #     self.bird.flap()
         if keyCode == 114:
             self.init()
-        pass
 
     def timerFired(self, dt):
-        if self.over == False:
-            self.time += 1
+        self.time += 1
+        
+        for bird in self.birds:
+            #move bird
+            bird.update()
             
-            for bird in self.birds:
-                #move bird
-                bird.update()
-                
-                #neural network
-                bird.think(self.pipe)
+            #neural network
+            bird.think(self.pipe)
+        
+        #move pipe
+        for pipe in self.pipe:
+            pipe[0][0] += self.speed
+            pipe[1][0] += self.speed
+            if pipe[0][0] < -50 and pipe[1][0] < -50:
+                self.pipe.remove(pipe)
+                break
             
-            #move pipe
+        #add pipe
+        if self.time % 80 == 0:
+            pipeX = self.width
+            pipeY = random.randint(-200, -20)
+            self.pipe.append([[pipeX, pipeY], [pipeX, pipeY + self.pipeHeight + self.gap]])
+            
+        #hit pipe & add score
+        for bird in self.birds:
             for pipe in self.pipe:
-                pipe[0][0] += self.speed
-                pipe[1][0] += self.speed
-                if pipe[0][0] < -50 and pipe[1][0] < -50:
-                    self.pipe.remove(pipe)
-                    break
-                
-            #add pipe
-            if self.time % 80 == 0:
-                pipeX = self.width
-                pipeY = random.randint(-200, 0)
-                self.pipe.append([[pipeX, pipeY], [pipeX, pipeY + self.pipeHeight + self.gap]])
-                
-            #hit pipe & add score
-            for bird in self.birds:
-                for pipe in self.pipe:
-                    if pipe[0][0] - bird.birdRadius < bird.birdx < pipe[0][0] + self.pipeWidth:
-                        if (bird.birdy < pipe[0][1] + self.pipeHeight) or (bird.birdy + bird.birdRadiusY > pipe[1][1]):
-                            self.birds.remove(bird)
-                            break
-                    if pipe[0][0] == bird.birdx:
-                        self.score += 1
-            if len(self.birds) == 0:
-                nextGeneration(self.allBirds, self.width, self.height)
-                self.over = True
-        else:
-            for bird in self.birds:
-                bird.birdy += 10
-                if bird.birdy > self.height:
-                    bird.birdy = self.height
-                    bird.velocity = 0
+                # if (bird.birdy < 0) or (bird.birdy + bird.birdRadiusY*2 > self.height):
+                #     self.allBirds += [bird]
+                #     self.birds.remove(bird)
+                #     break
+                if pipe[0][0] - bird.birdRadius < bird.birdx < pipe[0][0] + self.pipeWidth:
+                    if (bird.birdy < pipe[0][1] + self.pipeHeight) or (bird.birdy + bird.birdRadiusY > pipe[1][1]):
+                        self.allBirds += [bird]
+                        self.birds.remove(bird)
+                        break
+                if pipe[0][0] == bird.birdx:
+                    self.score += 1
+                    bird.score += 1
+        if len(self.birds) == 0:
+            self.birds = nextGeneration(self.allBirds, self.width, self.height)
+            self.generation += 1
+            PygameGame.init(self, self.birds, self.generation)
                 
     def redrawAll(self, screen):
         self.win.blit(self.background, (0,0))
@@ -124,6 +116,9 @@ class PygameGame(object):
         myfont = pygame.font.SysFont('LCD Solid', 60)
         textsurface = myfont.render(str(int(self.score)), False, (255, 255, 255))
         screen.blit(textsurface,(self.width/2 - 20, 30))  
+        myfont = pygame.font.SysFont('LCD Solid', 10)
+        textsurface = myfont.render("Generation " + str(int(self.generation)), False, (255, 255, 255))
+        screen.blit(textsurface,(self.width/2 - 40, 10))  
         if self.over:
             self.win.blit(self.gameover, (self.width/6 , self.height/2))
 

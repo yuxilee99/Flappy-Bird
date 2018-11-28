@@ -100,14 +100,21 @@ class NeuralNetwork(object):
         
         #change hidden bias by gradient
         self.biasI = np.add(self.biasI, gradientH)
-        
-    def copy():
+    
+    #The best way to do this is to create a method that sets each attribute of one instance to equal (a copy of) each attribute in another instance.
+    def copy(self):
         return NeuralNetwork(self)
- 
+        
     #accept an arbitrary function for mutation
-    def mutate(function):
-        funct = np.vectorize(function)
-        self.weightsI = funct(self.weightsI)
-        self.weightsO = funct(self.weightsO)    
-        self.biasI = funct(self.biasI)  
-        self.biasO = funct(self.biasO)  
+    def mutate(self, rate):
+        def mutateFunct(rate, n):
+            if random.uniform(0,1) < rate:
+                return n + np.random.normal(0, 0.1)
+            else:
+                return n
+        #apply mutation to weight and bias values
+        funct = np.vectorize(mutateFunct)
+        self.weightsI = funct(rate, self.weightsI)
+        self.weightsO = funct(rate, self.weightsO)    
+        self.biasI = funct(rate, self.biasI)  
+        self.biasO = funct(rate, self.biasO)  
