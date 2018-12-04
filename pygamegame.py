@@ -113,7 +113,7 @@ class PygameGame(object):
                     if pipe[0][0] - self.birdRadius < self.birdx < pipe[0][0] + self.pipeWidth:
                         if (self.birdy < pipe[0][1] + self.pipeHeight) or (self.birdy + self.birdRadiusY > pipe[1][1]):
                             self.over = True
-                            print(self.birdy, 'top', pipe[0][1] + self.pipeHeight, self.birdy + self.birdRadiusY, 'bottom',pipe[1][1])
+                            # print(self.birdy, 'top', pipe[0][1] + self.pipeHeight, self.birdy + self.birdRadiusY, 'bottom',pipe[1][1])
                     if pipe[0][0] == self.birdx:
                         self.score += 1
             else:

@@ -1,13 +1,17 @@
-#used template provided from Pygame PPT, by Lukas Peraza
-
-import pygame
+#referenced David Shiffman, The Coding Train Neural Network video playlist to get logic of how neural network works
+import numpy as np
 import random
+import math
+import pygame
 import copy
 import sys
-from Bird import Bird
+from BestBird import BestBird
+        
+
+#used template provided from Pygame PPT, by Lukas Peraza
         
 class PygameGame(object):
-    def init(self, bird = None):
+    def init(self):
         self.over = False
         self.gameover = pygame.image.load("images/gameover.png")
         self.score = 0
@@ -27,12 +31,7 @@ class PygameGame(object):
         self.speed = -2
         self.time = 0
         
-        if bird == None:
-            self.bird = Bird(self.width, self.height)
-        else:
-            self.bird = bird
-        self.flapped = False
-        self.learn = False
+        self.bird = BestBird(self.width, self.height)
         
     def mousePressed(self, x, y):
         pass
@@ -50,12 +49,12 @@ class PygameGame(object):
         pass
 
     def keyPressed(self, keyCode, modifier):
-        if self.learn == True:
-            if keyCode == pygame.K_SPACE:
-                self.bird.flap()
-                self.flapped = True
-        if keyCode == 115:
-            self.learn = not self.learn
+        if keyCode == pygame.K_SPACE:
+            self.bird.flap()
+            
+        if keyCode == 114:
+            self.init()
+        pass
 
     def timerFired(self, dt):
         if self.over == False:
@@ -63,17 +62,9 @@ class PygameGame(object):
             #move bird
             self.bird.update()
             
-            #train neural network
-            if self.learn == True:
-                if self.flapped == True:
-                    target = random.uniform(0.5,1)
-                else:
-                    target = random.uniform(0,0.49)
-                self.bird.learn(self.pipe, target)
-                self.flapped = False
-            else:
-                self.bird.think(self.pipe)
-                
+            #neural network
+            self.bird.think(self.pipe)
+            
             #move pipe
             for pipe in self.pipe:
                 pipe[0][0] += self.speed
@@ -100,8 +91,6 @@ class PygameGame(object):
             if self.bird.birdy > self.height:
                 self.bird.birdy = self.height
                 self.bird.velocity = 0
-            PygameGame.init(self, self.bird)
-
                 
     def redrawAll(self, screen):
         self.win.blit(self.background, (0,0))
