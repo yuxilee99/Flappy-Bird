@@ -34,7 +34,7 @@ class PygameGame(object):
         self.speed = -2
         self.time = 0
         
-        self.total = 200
+        self.total = 100
         
         if birds != None:
             self.birds = birds

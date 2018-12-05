@@ -4,9 +4,9 @@ import numpy as np
 import random
 import math
 import pygame
-import copy
 import sys
 from hardBird import BestBird
+from Bird import Bird
                 
 class HardPygameGame(object):
     def init(self):
@@ -31,7 +31,8 @@ class HardPygameGame(object):
         
         #hardbird
         self.bird = BestBird(self.width, self.height)
-        
+        self.playerbird = Bird(self.width, self.height)
+        self.birdOver = False
         
     def mousePressed(self, x, y):
         pass
@@ -49,6 +50,8 @@ class HardPygameGame(object):
         pass
 
     def keyPressed(self, keyCode, modifier):
+        if keyCode == pygame.K_SPACE:
+            self.playerbird.flap()
         if keyCode == 114:
             self.init()
 
@@ -56,10 +59,16 @@ class HardPygameGame(object):
         if self.over == False:
             self.time += 1            
             #move bird
-            self.bird.update()
+            self.playerbird.update()
             
-            #neural network
-            self.bird.think(self.pipe)
+            if self.birdOver == False:
+                self.bird.update()
+                self.bird.think(self.pipe)
+            else:
+                self.bird.birdy += 10
+                if self.bird.birdy > self.height:
+                    self.bird.birdy = self.height
+                    self.bird.velocity = 0
             
             #move pipe
             for pipe in self.pipe:
@@ -79,15 +88,16 @@ class HardPygameGame(object):
             for pipe in self.pipe:
                 if pipe[0][0] - self.bird.birdRadius < self.bird.birdx < pipe[0][0] + self.pipeWidth:
                     if (self.bird.birdy < pipe[0][1] + self.pipeHeight) or (self.bird.birdy + self.bird.birdRadiusY > pipe[1][1]):
+                        self.birdOver = True
+                    if (self.playerbird.birdy < pipe[0][1] + self.pipeHeight) or (self.playerbird.birdy + self.playerbird.birdRadiusY > pipe[1][1]):
                         self.over = True
-                if pipe[0][0] == self.bird.birdx:
+                if pipe[0][0] == self.playerbird.birdx:
                     self.score += 1
-            
         else:
-            self.bird.birdy += 10
-            if self.bird.birdy > self.height:
-                self.bird.birdy = self.height
-                self.bird.velocity = 0
+            self.playerbird.birdy += 10
+            if self.playerbird.birdy > self.height:
+                self.playerbird.birdy = self.height
+                self.playerbird.velocity = 0
                 
     def redrawAll(self, screen):
         self.win.blit(self.background, (0,0))
@@ -95,6 +105,7 @@ class HardPygameGame(object):
             self.win.blit(self.topPipe, pipe[0])
             self.win.blit(self.bottomPipe, pipe[1])
         self.win.blit(self.bird.birds[self.bird.birdImage], (self.bird.birdx, self.bird.birdy))
+        self.win.blit(self.playerbird.birds[self.playerbird.birdImage], (self.playerbird.birdx, self.playerbird.birdy))
         myfont = pygame.font.SysFont('LCD Solid', 60)
         textsurface = myfont.render(str(int(self.score)), False, (255, 255, 255))
         if len(str(self.score)) == 1:

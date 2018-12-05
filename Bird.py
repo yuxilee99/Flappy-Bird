@@ -1,3 +1,4 @@
+
 import pygame
 import math
 from neuralnetwork import NeuralNetwork
@@ -47,7 +48,10 @@ class Bird(object):
     def flap(self):
         self.velocity += self.speed 
         self.birdImage = 2
-
+        
+#referenced David Shiffman, The Coding Train to get understand how logic of implementing neural network to bird class
+    
+    #get inputs, use neural network to get output
     def think(self, pipes):
         #get closest pipe
         close = None
@@ -72,7 +76,8 @@ class Bird(object):
         # if (output[0] > 0.5) and (self.velocity >= 0):
         if output[0] > 0.5:
             self.flap()
-            
+    
+    #get input and target values to train birds neural network        
     def learn(self, pipes, target):
         #get closest pipe
         close = None

@@ -1,18 +1,24 @@
 #used template provided from Pygame PPT, by Lukas Peraza
+#referenced David Shiffman, The Coding Train for logic
 
-import numpy as np
-import random
-import math
 import pygame
+import random
 import copy
 import sys
-from hardBird import BestBird
-                
-class HardPygameGame(object):
-    def init(self):
+from Bird import Bird
+from genetic import *
+
+        
+class PygameGame(object):
+    def init(self, birds = None, generation = None, allBirds = None, bestBird = None, allBestBirds = None):
         self.over = False
         self.gameover = pygame.image.load("images/gameover.png")
         self.score = 0
+        
+        if generation != None:
+            self.generation = generation
+        else:
+            self.generation = 0
         
         #load background for game
         self.display = pygame.display.set_mode((self.width,self.height))
@@ -29,9 +35,29 @@ class HardPygameGame(object):
         self.speed = -2
         self.time = 0
         
-        #hardbird
-        self.bird = BestBird(self.width, self.height)
+        self.total = 100
         
+        if birds != None:
+            self.birds = birds
+        else:
+            self.birds = []
+            for i in range(self.total):
+                self.birds += [Bird(self.width, self.height)]
+        
+        if allBirds != None:
+            self.allBirds = allBirds
+        else:
+            self.allBirds = []
+        
+        if bestBird != None:
+            self.bestBird = bestBird
+        else:
+            self.bestBird = None
+        
+        if allBestBirds != None:
+            self.allBestBirds = allBestBirds
+        else:
+            self.allBestBirds = []
         
     def mousePressed(self, x, y):
         pass
@@ -51,50 +77,75 @@ class HardPygameGame(object):
     def keyPressed(self, keyCode, modifier):
         if keyCode == 114:
             self.init()
-
+        if keyCode == 112:
+            if self.bestBird != None:
+                print('weightI', self.bestBird.network.weightsI)
+                print('weightsO', self.bestBird.network.weightsO)
+                print('biasI',self.bestBird.network.biasI)
+                print('biasO',self.bestBird.network.biasO)
+                
     def timerFired(self, dt):
-        if self.over == False:
-            self.time += 1            
+        self.time += 1
+        
+        for bird in self.birds:
             #move bird
-            self.bird.update()
+            bird.update()
             
             #neural network
-            self.bird.think(self.pipe)
+            bird.think(self.pipe)
+        
+        #move pipe
+        for pipe in self.pipe:
+            pipe[0][0] += self.speed
+            pipe[1][0] += self.speed
+            if pipe[0][0] < -50 and pipe[1][0] < -50:
+                self.pipe.remove(pipe)
+                break
             
-            #move pipe
+        #add pipe
+        if self.time % 80 == 0:
+            pipeX = self.width
+            pipeY = random.randint(-200, -20)
+            self.pipe.append([[pipeX, pipeY], [pipeX, pipeY + self.pipeHeight + self.gap]])
+            
+        #hit pipe & add score
+        for bird in self.birds:
             for pipe in self.pipe:
-                pipe[0][0] += self.speed
-                pipe[1][0] += self.speed
-                if pipe[0][0] < -50 and pipe[1][0] < -50:
-                    self.pipe.remove(pipe)
-                    break
-                
-            #add pipe
-            if self.time % 80 == 0:
-                pipeX = self.width
-                pipeY = random.randint(-200, 0)
-                self.pipe.append([[pipeX, pipeY], [pipeX, pipeY + self.pipeHeight + self.gap]])
-                
-            #hit pipe & add score
-            for pipe in self.pipe:
-                if pipe[0][0] - self.bird.birdRadius < self.bird.birdx < pipe[0][0] + self.pipeWidth:
-                    if (self.bird.birdy < pipe[0][1] + self.pipeHeight) or (self.bird.birdy + self.bird.birdRadiusY > pipe[1][1]):
-                        self.over = True
-                if pipe[0][0] == self.bird.birdx:
+                if (bird.birdy < pipe[0][1] + self.pipeHeight) or (bird.birdy + bird.birdRadiusY > pipe[1][1]):
+                    if pipe[0][0] - bird.birdRadius < bird.birdx < pipe[0][0] + self.pipeWidth:
+                        bird.score -= (abs(bird.birdy - (pipe[0][1] + self.pipeHeight + self.gap/2)))/4
+                        self.allBirds += [bird]
+                        self.birds.remove(bird)
+                        break
+                if (pipe[0][0] + self.pipeWidth) == (bird.birdx + bird.birdRadius):
                     self.score += 1
-            
-        else:
-            self.bird.birdy += 10
-            if self.bird.birdy > self.height:
-                self.bird.birdy = self.height
-                self.bird.velocity = 0
-                
+                    bird.gameScore += 1
+                    bird.score += 150
+        if len(self.birds) == 1:
+            tempBest = self.birds[0]
+            if self.bestBird == None:
+                self.bestBird = Bird(self.width, self.height, tempBest.network)
+                self.allBestBirds += [Bird(self.width, self.height, tempBest.network)]
+            if tempBest.gameScore > self.bestBird.gameScore:
+                self.bestBird = Bird(self.width, self.width, tempBest.network)
+                self.allBestBirds += [Bird(self.width, self.height, tempBest.network)]
+                if tempBest.network.biasO[0] != self.bestBird.network.biasO[0]:
+                    print('weightI', self.bestBird.network.weightsI)
+                    print('weightsO', self.bestBird.network.weightsO)
+                    print('biasI',self.bestBird.network.biasI)
+                    print('biasO',self.bestBird.network.biasO)
+                    print("#######################")
+        elif len(self.birds) == 0:
+            self.birds = nextGeneration(self.allBirds, self.width, self.height, self.total)
+            self.generation += 1
+            PygameGame.init(self, self.birds, self.generation, self.allBirds, self.bestBird, self.allBestBirds)   
     def redrawAll(self, screen):
         self.win.blit(self.background, (0,0))
         for pipe in self.pipe:
             self.win.blit(self.topPipe, pipe[0])
             self.win.blit(self.bottomPipe, pipe[1])
-        self.win.blit(self.bird.birds[self.bird.birdImage], (self.bird.birdx, self.bird.birdy))
+        for bird in self.birds:
+            self.win.blit(bird.birds[bird.birdImage], (bird.birdx, bird.birdy))
         myfont = pygame.font.SysFont('LCD Solid', 60)
         textsurface = myfont.render(str(int(self.score)), False, (255, 255, 255))
         if len(str(self.score)) == 1:
@@ -105,6 +156,9 @@ class HardPygameGame(object):
             screen.blit(textsurface,(self.width/2 - 60, 30))
         if len(str(self.score)) == 4:
             screen.blit(textsurface,(self.width/2 - 80, 30))
+        myfont = pygame.font.SysFont('LCD Solid', 10)
+        textsurface = myfont.render("Generation " + str(int(self.generation)), False, (255, 255, 255))
+        screen.blit(textsurface,(self.width/2 - 40, 10))  
         if self.over:
             self.win.blit(self.gameover, (self.width/6 , self.height/2))
 
@@ -163,7 +217,7 @@ class HardPygameGame(object):
 
 
 def main():
-    game = HardPygameGame()
+    game = PygameGame()
     game.run()
 
 if __name__ == '__main__':

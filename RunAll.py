@@ -1,9 +1,11 @@
 #used template provided from Pygame PPT, by Lukas Peraza
-
 import pygame
 import random
 import sys 
-from Bird import Bird
+from neuralflappy import NetworkPygameGame
+from easyBirdGameWithPlayer import EasyPygameGame
+from hardBirdGameWithPlayer import HardPygameGame
+from Bird import Bird 
 
 class PygameGame(object):
     def init(self):
@@ -11,15 +13,16 @@ class PygameGame(object):
         self.gameover = pygame.image.load("images/gameover.png")
         self.start = True
         self.startPage = pygame.image.load("images/message.png")
+        self.tap = pygame.image.load("images/tap.png")
+        self.ready = pygame.image.load("images/ready.png")
         self.score = 0
+        self.overCount = 0
         
         #load background for game
         self.display = pygame.display.set_mode((self.width,self.height))
         self.background = pygame.image.load("images/background.png")
         self.win = pygame.display.set_mode((288,500))
-        
-        self.bird = Bird(self.width, self.height)
-        
+
         #load pipes
         self.pipe = []
         self.topPipe = pygame.image.load('images/topPipe.png')
@@ -29,6 +32,9 @@ class PygameGame(object):
         self.pipeWidth = 52
         self.speed = -2
         self.time = 0
+        
+        #load bird
+        self.bird = Bird(self.width, self.height)
         
     def mousePressed(self, x, y):
         pass
@@ -52,11 +58,16 @@ class PygameGame(object):
             if keyCode == 114:
                 self.start = True
                 self.over = False
-                PygameGame.init(self)
         if self.start:
-            if keyCode == 115:
+            if keyCode == 112:
                 self.start = False
                 self.birdy = 0
+            if keyCode == 116:
+                NetworkPygameGame()
+            if keyCode == 101:
+                EasyPygameGame()
+            if keyCode == 104:
+                EasyPygameGame()
 
     def timerFired(self, dt):
         if self.start:
@@ -64,8 +75,8 @@ class PygameGame(object):
             self.bird.velocity *= 0.9
             self.bird.birdy += self.bird.velocity
             self.bird.birdImage = 0
-            if self.bird.birdy > 3*self.height/4:
-                self.bird.birdy = 3*self.height/4
+            if self.bird.birdy > 430:
+                self.bird.birdy = 430
                 self.bird.velocity = 0
             elif self.bird.birdy < 0:
                 self.bird.birdy = 0
@@ -98,10 +109,15 @@ class PygameGame(object):
                     if pipe[0][0] == self.bird.birdx:
                         self.score += 1
             else:
+                self.overCount += 1
                 self.bird.birdy += 10
                 if self.bird.birdy > self.height:
                     self.bird.birdy = self.height
                     self.bird.velocity = 0
+                if self.overCount == 100:
+                    self.start = True
+                    self.over = False
+                    PygameGame.init(self)
                 
     def redrawAll(self, screen):
         self.win.blit(self.background, (0,0))
@@ -110,13 +126,32 @@ class PygameGame(object):
                 self.win.blit(self.topPipe, pipe[0])
                 self.win.blit(self.bottomPipe, pipe[1])
             self.win.blit(self.bird.birds[self.bird.birdImage], (self.bird.birdx, self.bird.birdy))
-            myfont = pygame.font.SysFont('LCD Solid', 60)
+            myfont = pygame.font.SysFont('04B_19', 60)
             textsurface = myfont.render(str(int(self.score)), False, (255, 255, 255))
             screen.blit(textsurface,(self.width/2 - 20, 30))  
             if self.over:
                 self.win.blit(self.gameover, (self.width/6 , self.height/2))
         else:
-            self.win.blit(self.startPage, (51, self.height/4))
+            self.win.blit(self.startPage, (51, 30))
+            self.win.blit(self.tap, (51, 210))
+            myfont = pygame.font.SysFont('04B_19', 44)
+            textsurface = myfont.render("PLAY", False, (92, 64, 51))
+            screen.blit(textsurface,(self.width/2-49, 109))
+            textsurface = myfont.render("TRAIN", False, (92, 64, 51))
+            screen.blit(textsurface,(self.width/2-60, 159))
+            textsurface = myfont.render("EASY", False, (92, 64, 51))
+            screen.blit(textsurface,(self.width/2-49, 209))
+            textsurface = myfont.render("HARD", False, (92, 64, 51))
+            screen.blit(textsurface,(self.width/2-49, 259))
+            myfont = pygame.font.SysFont('04B_19', 40)
+            textsurface = myfont.render("PLAY", False, (255, 255, 255))
+            screen.blit(textsurface,(self.width/2-45, 110))
+            textsurface = myfont.render("TRAIN", False, (255, 255, 255))
+            screen.blit(textsurface,(self.width/2-55, 160))
+            textsurface = myfont.render("EASY", False, (255, 255, 255))
+            screen.blit(textsurface,(self.width/2-45, 210))
+            textsurface = myfont.render("HARD", False, (255, 255, 255))
+            screen.blit(textsurface,(self.width/2-45, 260))  
             self.win.blit(self.bird.birds[1], (self.width/2 - self.bird.birdRadius/2, self.bird.birdy))
 
 

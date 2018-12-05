@@ -6,7 +6,7 @@ import copy
 import sys
 from Bird import Bird
         
-class PygameGame(object):
+class NetworkPygameGame(object):
     def init(self, bird = None):
         self.over = False
         self.gameover = pygame.image.load("images/gameover.png")
@@ -32,7 +32,7 @@ class PygameGame(object):
         else:
             self.bird = bird
         self.flapped = False
-        self.learn = False
+        self.learn = True
         
     def mousePressed(self, x, y):
         pass
@@ -100,7 +100,7 @@ class PygameGame(object):
             if self.bird.birdy > self.height:
                 self.bird.birdy = self.height
                 self.bird.velocity = 0
-            PygameGame.init(self, self.bird)
+            NetworkPygameGame.init(self, self.bird)
 
                 
     def redrawAll(self, screen):
@@ -170,7 +170,7 @@ class PygameGame(object):
 
 
 def main():
-    game = PygameGame()
+    game = NetworkPygameGame()
     game.run()
 
 if __name__ == '__main__':

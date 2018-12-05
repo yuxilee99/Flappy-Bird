@@ -11,7 +11,8 @@ def calcFitness(birds):
     for bird in birds:
         bird.fitness = bird.score/sum
         
-# select birds that are most fit
+# select birds that are most fit based on probability
+# higher fitness has higher probability of getting chosen
 def pick(bird, width, height, i):
     index = 0
     randNum = random.uniform(0,1)
