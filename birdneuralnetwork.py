@@ -1,3 +1,4 @@
+#referenced David Shiffman, The Coding Train Neural Network video playlist to get logic of how neural network works
 import numpy as np
 import random
 import math
@@ -40,9 +41,3 @@ class BirdNetwork(object):
         
         return newFinal.flatten() 
             
-    #make a copy of the neural network
-    def copy(self):
-        return NeuralNetwork(self.inputNum, self.hiddenNum, self.outputNum, self.weightsI, self.weightsO, self.biasI, self.biasO)
-    
-    def printValue(self):
-        print(self.weightsI, self.weightsO, self.biasI, self.biasO)

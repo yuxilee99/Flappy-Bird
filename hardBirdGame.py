@@ -5,7 +5,7 @@ import math
 import pygame
 import copy
 import sys
-from BestBird import BestBird
+from hardBird import BestBird
         
 
 #used template provided from Pygame PPT, by Lukas Peraza

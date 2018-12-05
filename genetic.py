@@ -21,7 +21,7 @@ def pick(bird, width, height, i):
     index -= 1
     pickBird = bird[index]
     newBird = Bird(width, height, pickBird.network) 
-    newBird.network.mutate(0.1)
+    newBird.network.mutate(0.2)
     return newBird
  
 #create next generation of birds    

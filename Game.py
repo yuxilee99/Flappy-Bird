@@ -1,37 +1,21 @@
-#referenced David Shiffman, The Coding Train Neural Network video playlist to get logic of how neural network works
-import numpy as np
-import random
-import math
-import pygame
-import copy
-import sys
-from BestBird import BestBird
-        
-
 #used template provided from Pygame PPT, by Lukas Peraza
-        
+
+import pygame
+import random
+import sys 
+
 class PygameGame(object):
     def init(self):
         self.over = False
         self.gameover = pygame.image.load("images/gameover.png")
+        self.start = True
+        self.startPage = pygame.image.load("images/message.png")
         self.score = 0
         
         #load background for game
         self.display = pygame.display.set_mode((self.width,self.height))
         self.background = pygame.image.load("images/background.png")
         self.win = pygame.display.set_mode((288,500))
-        
-        #load pipes
-        self.pipe = []
-        self.topPipe = pygame.image.load('images/topPipe.png')
-        self.bottomPipe = pygame.image.load('images/bottomPipe.png')
-        self.gap = 120
-        self.pipeHeight = 317
-        self.pipeWidth = 52
-        self.speed = -2
-        self.time = 0
-        
-        self.bird = BestBird(self.width, self.height)
         
     def mousePressed(self, x, y):
         pass
@@ -50,66 +34,51 @@ class PygameGame(object):
 
     def keyPressed(self, keyCode, modifier):
         if keyCode == pygame.K_SPACE:
-            self.bird.flap()
-            
-        if keyCode == 114:
-            self.init()
-        pass
+            self.velocity += self.flap 
+            self.birdImage = 2
+        if self.over:
+            if keyCode == 114:
+                self.start = True
+                self.over = False
+                PygameGame.init(self)
+        if self.start:
+            if keyCode == 115:
+                self.start = False
+                self.birdy = 0
+            if keyCode == 
 
     def timerFired(self, dt):
-        if self.over == False:
-            self.time += 1            
-            #move bird
-            self.bird.update()
-            
-            #neural network
-            self.bird.think(self.pipe)
-            
-            #move pipe
-            for pipe in self.pipe:
-                pipe[0][0] += self.speed
-                pipe[1][0] += self.speed
-                if pipe[0][0] < -50 and pipe[1][0] < -50:
-                    self.pipe.remove(pipe)
-                    break
-                
-            #add pipe
-            if self.time % 80 == 0:
-                pipeX = self.width
-                pipeY = random.randint(-200, 0)
-                self.pipe.append([[pipeX, pipeY], [pipeX, pipeY + self.pipeHeight + self.gap]])
-                
-            #hit pipe & add score
-            for pipe in self.pipe:
-                if pipe[0][0] - self.bird.birdRadius < self.bird.birdx < pipe[0][0] + self.pipeWidth:
-                    if (self.bird.birdy < pipe[0][1] + self.pipeHeight) or (self.bird.birdy + self.bird.birdRadiusY > pipe[1][1]):
-                        self.over = True
-                if pipe[0][0] == self.bird.birdx:
-                    self.score += 1
+        if self.start:
+            self.velocity += self.gravity
+            self.velocity *= 0.9
+            self.birdy += self.velocity
+            self.birdImage = 0
+            if self.birdy > 3*self.height/4:
+                self.birdy = 3*self.height/4
+                self.velocity = 0
+            elif self.birdy < 0:
+                self.birdy = 0
+                self.velocity = 0
         else:
-            self.bird.birdy += 10
-            if self.bird.birdy > self.height:
-                self.bird.birdy = self.height
-                self.bird.velocity = 0
+            if self.over == False:
+               
                 
     def redrawAll(self, screen):
         self.win.blit(self.background, (0,0))
-        for pipe in self.pipe:
-            self.win.blit(self.topPipe, pipe[0])
-            self.win.blit(self.bottomPipe, pipe[1])
-        self.win.blit(self.bird.birds[self.bird.birdImage], (self.bird.birdx, self.bird.birdy))
-        myfont = pygame.font.SysFont('LCD Solid', 60)
-        textsurface = myfont.render(str(int(self.score)), False, (255, 255, 255))
-        if len(str(self.score)) == 1:
-            screen.blit(textsurface,(self.width/2 - 20, 30))
-        if len(str(self.score)) == 2:
-            screen.blit(textsurface,(self.width/2 - 40, 30))
-        if len(str(self.score)) == 3:
-            screen.blit(textsurface,(self.width/2 - 60, 30))
-        if len(str(self.score)) == 4:
-            screen.blit(textsurface,(self.width/2 - 80, 30))
-        if self.over:
-            self.win.blit(self.gameover, (self.width/6 , self.height/2))
+        if self.start == False:
+            for pipe in self.pipe:
+                self.win.blit(self.topPipe, pipe[0])
+                self.win.blit(self.bottomPipe, pipe[1])
+            self.win.blit(self.bird[self.birdImage], (self.birdx, self.birdy))
+            myfont = pygame.font.SysFont('LCD Solid', 60)
+            textsurface = myfont.render(str(int(self.score)), False, (255, 255, 255))
+            screen.blit(textsurface,(self.width/2 - 20, 30))  
+            if self.over:
+                self.win.blit(self.gameover, (self.width/6 , self.height/2))
+        else:
+            self.win.blit(self.startPage, (51, self.height/4))
+            self.win.blit(self.bird[1], (self.width/2 - self.birdRadius/2, self.birdy))
+
 
     def isKeyPressed(self, key):
         return self._keys.get(key, False)

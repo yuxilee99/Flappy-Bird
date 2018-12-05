@@ -7,7 +7,32 @@ import copy
 import sys
 from Bird import Bird
 from genetic import *
-        
+from neuralnetwork import NeuralNetwork
+import numpy as np
+       
+weightsI = [[-0.00430682, 0.30090773, 0.68649782, 0.51641445, -0.12109569],
+ [ 0.28453265, -0.24245107,  0.18618809,  0.46442997,  0.38037524],
+ [ 0.73926177,  0.1783407,  -0.20246109,  0.17482314,  0.0184592 ],
+ [-0.13875848, -0.02024739, -0.07369451, -0.02465726, -1.07647434],
+ [ 0.17304342,  0.57962411,  0.60138582,  0.80238579,  0.2758194 ],
+ [-1.02620264, -0.41083493,  0.96045871,  0.2598985, -0.457298  ],
+ [ 0.35318073, -0.31090429, -0.82369588,  0.76708522, -0.11023456],
+ [ 0.27966543,  1.19121681,  0.23814862, -0.14066213, -0.38856115]]
+weightsO = [[-0.84339776, -0.46534869,  1.09074716, -0.25396256,  1.07985184, -0.34114963, 0.38659232,  0.54690692]]
+
+biasI = [[-0.6508766 ],
+ [ 0.76778626],
+ [-0.85385323],
+ [-1.13566269],
+ [ 0.70506466],
+ [-0.66044116],
+ [ 0.46338748],
+ [-1.28408854]]
+ 
+biasO = [[-0.913795]]
+ 
+network = NeuralNetwork(5, 8, 1, np.array([weightsI]), np.array([weightsO]), np.array([biasI]), np.array([biasO]))
+
 class PygameGame(object):
     def init(self, birds = None, generation = None, allBirds = None, bestBird = None, allBestBirds = None):
         self.over = False
@@ -35,14 +60,13 @@ class PygameGame(object):
         self.time = 0
         
         self.total = 200
-        
+
         if birds != None:
             self.birds = birds
         else:
             self.birds = []
             for i in range(self.total):
-                self.birds += [Bird(self.width, self.height)]
-        
+                self.birds += [Bird(self.width, self.height, network)]
         if allBirds != None:
             self.allBirds = allBirds
         else:
@@ -75,7 +99,11 @@ class PygameGame(object):
 
     def keyPressed(self, keyCode, modifier):
         if keyCode == 114:
-            self.init()
+            print('weightI', self.birds[0].network.weightsI)
+            print('weightsO', self.birds[0].network.weightsO)
+            print('biasI',self.birds[0].network.biasI)
+            print('biasO',self.birds[0].network.biasO)
+            input()
 
     def timerFired(self, dt):
         self.time += 1

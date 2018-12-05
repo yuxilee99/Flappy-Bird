@@ -1,16 +1,14 @@
-#referenced David Shiffman, The Coding Train Neural Network video playlist to get logic of how neural network works
+#used template provided from Pygame PPT, by Lukas Peraza
+
 import numpy as np
 import random
 import math
 import pygame
 import copy
 import sys
-from BestBird import BestBird
-        
-
-#used template provided from Pygame PPT, by Lukas Peraza
-        
-class PygameGame(object):
+from easyBird import EasyBird
+                
+class EasyPygameGame(object):
     def init(self):
         self.over = False
         self.gameover = pygame.image.load("images/gameover.png")
@@ -31,7 +29,7 @@ class PygameGame(object):
         self.speed = -2
         self.time = 0
         
-        self.bird = BestBird(self.width, self.height)
+        self.bird = EasyBird(self.width, self.height)
         
     def mousePressed(self, x, y):
         pass
@@ -166,7 +164,7 @@ class PygameGame(object):
 
 
 def main():
-    game = PygameGame()
+    game = EasyPygameGame()
     game.run()
 
 if __name__ == '__main__':
