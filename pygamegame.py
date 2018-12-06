@@ -1,4 +1,5 @@
 #used template provided from Pygame PPT, by Lukas Peraza
+#original flappy bird game, without any features
 
 import pygame
 import random
@@ -10,7 +11,7 @@ class PygameGame(object):
         self.over = False
         self.gameover = pygame.image.load("images/gameover.png")
         self.start = True
-        self.startPage = pygame.image.load("images/message.png")
+        self.startPage = pygame.image.load("images/messages.png")
         self.score = 0
         
         #load background for game

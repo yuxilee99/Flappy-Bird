@@ -1,4 +1,6 @@
 #used template provided from Pygame PPT, by Lukas Peraza
+#flappy bird game with AI bird that learns based on user inputs
+#can switch between watching the bird use it neural network and teaching it
 
 import pygame
 import random

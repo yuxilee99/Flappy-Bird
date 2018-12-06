@@ -1,5 +1,6 @@
 #used template provided from Pygame PPT, by Lukas Peraza
 #referenced David Shiffman, The Coding Train for logic
+#flappy bird program that implements genetic algorithm on populations of AI birds with distinct neural networks
 
 import pygame
 import random
@@ -36,6 +37,7 @@ class PygameGame(object):
         self.time = 0
         
         self.total = 100
+        self.rate = 0.2
         
         if birds != None:
             self.birds = birds
@@ -136,7 +138,7 @@ class PygameGame(object):
                     print('biasO',self.bestBird.network.biasO)
                     print("#######################")
         elif len(self.birds) == 0:
-            self.birds = nextGeneration(self.allBirds, self.width, self.height, self.total)
+            self.birds = nextGeneration(self.allBirds, self.width, self.height, self.total, self.rate)
             self.generation += 1
             PygameGame.init(self, self.birds, self.generation, self.allBirds, self.bestBird, self.allBestBirds)   
     def redrawAll(self, screen):

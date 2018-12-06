@@ -1,4 +1,4 @@
-
+#bird class used to generate each bird for genetic algorithm and usual flappy bird
 import pygame
 import math
 from neuralnetwork import NeuralNetwork

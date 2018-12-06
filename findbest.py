@@ -1,5 +1,5 @@
 #used template provided from Pygame PPT, by Lukas Peraza
-#referenced David Shiffman, The Coding Train for logic
+#used this game to find the hard AI bird, started the population with a decent AI bird
 
 import pygame
 import random

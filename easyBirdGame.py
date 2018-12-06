@@ -1,4 +1,5 @@
 #used template provided from Pygame PPT, by Lukas Peraza
+#game that only has easy AI bird playing 
 
 import numpy as np
 import random

@@ -1,3 +1,5 @@
+#bird class for easy AI bird
+
 import pygame
 import math
 from birdneuralnetwork import BirdNetwork

@@ -1,4 +1,6 @@
 #referenced David Shiffman, The Coding Train Neural Network video playlist to get logic of how neural network works
+#neural network class, used to generate populations of random AI bird for genetic algorithm
+
 import numpy as np
 import random
 import math
@@ -101,7 +103,7 @@ class NeuralNetwork(object):
         changeWH = np.multiply(gradientO, self.learningRate)
         # value = np.squeeze(value)
         # value = np.array([value])
-
+        
         changeWH = np.matmul(changeWH, value.T)
         #change all weights by changeW
         self.weightsO = np.add(self.weightsO, changeWH)

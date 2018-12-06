@@ -1,5 +1,8 @@
+#genetic algorithm functions used to find the best AI bird
+
 from Bird import Bird
 import random
+from trainbird import TrainBird
 #referenced David Shiffman, The Coding Train to get logic of genetic algorithms
 
 def calcFitness(birds):
@@ -13,7 +16,7 @@ def calcFitness(birds):
         
 # select birds that are most fit based on probability
 # higher fitness has higher probability of getting chosen
-def pick(bird, width, height, i):
+def pick(bird, width, height, i, rate):
     index = 0
     randNum = random.uniform(0,1)
     while randNum > 0:
@@ -21,16 +24,16 @@ def pick(bird, width, height, i):
         index += 1
     index -= 1
     pickBird = bird[index]
-    newBird = Bird(width, height, pickBird.network) 
-    newBird.network.mutate(0.2)
+    newBird = TrainBird(width, height, pickBird.network) 
+    newBird.network.mutate(rate)
     return newBird
  
 #create next generation of birds    
-def nextGeneration(bird, width, height, total):
+def nextGeneration(bird, width, height, total, rate):
     calcFitness(bird)
     birds = []
     for i in range(total):
-        birds += [pick(bird, width, height, i)]
+        birds += [pick(bird, width, height, i, rate)]
     bird = []
     return birds
         
